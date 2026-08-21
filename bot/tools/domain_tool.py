@@ -1,7 +1,7 @@
 """Domain & DNS Intelligence tools: DNS records, URL unshortener, subdomains, and security scans."""
 
 import asyncio
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Optional
 import dns.resolver
 import httpx
 
