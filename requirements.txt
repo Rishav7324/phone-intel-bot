@@ -1,5 +1,5 @@
 # Core Bot Dependencies
-python-telegram-bot>=21.0.1
+python-telegram-bot>=22.8
 phonenumbers>=8.13.30
 pydantic>=2.7.0
 pydantic-settings>=2.2.1
