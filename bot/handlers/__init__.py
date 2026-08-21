@@ -9,6 +9,9 @@ from .country import country_handler
 from .language import language_handler
 from .batch import batch_handler
 from .broadcast import broadcast_handler
+from .sample import sample_handler
+from .compare import compare_handler
+from .dialcodes import dialcodes_handler
 from .lookup import text_lookup_handler, callback_router_handler
 
 __all__ = [
@@ -21,6 +24,9 @@ __all__ = [
     "language_handler",
     "batch_handler",
     "broadcast_handler",
+    "sample_handler",
+    "compare_handler",
+    "dialcodes_handler",
     "text_lookup_handler",
     "callback_router_handler",
 ]

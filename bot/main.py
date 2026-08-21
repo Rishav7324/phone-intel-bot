@@ -23,10 +23,13 @@ from bot.handlers import (
     batch_handler,
     broadcast_handler,
     callback_router_handler,
+    compare_handler,
     country_handler,
+    dialcodes_handler,
     help_handler,
     language_handler,
     privacy_handler,
+    sample_handler,
     start_handler,
     stats_handler,
     text_lookup_handler,
@@ -60,6 +63,9 @@ async def post_init(application: Application) -> None:
         BotCommand("start", "Start the bot & quick overview"),
         BotCommand("help", "Usage guide & examples"),
         BotCommand("country", "Lookup country dialling codes & info"),
+        BotCommand("dialcodes", "Browse world dialling codes"),
+        BotCommand("sample", "Generate sample test numbers"),
+        BotCommand("compare", "Compare two numbers side-by-side"),
         BotCommand("batch", "Multi-number batch analysis guide"),
         BotCommand("language", "Switch English / Hindi language"),
         BotCommand("privacy", "Privacy policy & data principles"),
@@ -67,7 +73,7 @@ async def post_init(application: Application) -> None:
     ]
     await application.bot.set_my_commands(commands)
     logger = logging.getLogger("phone_intel_bot")
-    logger.info("Bot command menu configured successfully")
+    logger.info("Bot command menu configured successfully with v1.2.0 tools")
 
 
 def build_application() -> Application:
@@ -79,7 +85,7 @@ def build_application() -> Application:
         logger.critical("BOT_TOKEN is not set in environment or .env file. Exiting.")
         sys.exit(1)
 
-    logger.info("Initializing Upgraded Phone Intelligence Bot...")
+    logger.info("Initializing Upgraded Phone Intelligence Bot (v1.2.0)...")
 
     # Initialize shared components
     db = DatabaseManager(settings.database_path)
@@ -115,6 +121,9 @@ def build_application() -> Application:
     app.add_handler(CommandHandler("start", start_handler))
     app.add_handler(CommandHandler("help", help_handler))
     app.add_handler(CommandHandler("country", country_handler))
+    app.add_handler(CommandHandler("dialcodes", dialcodes_handler))
+    app.add_handler(CommandHandler("sample", sample_handler))
+    app.add_handler(CommandHandler("compare", compare_handler))
     app.add_handler(CommandHandler("batch", batch_handler))
     app.add_handler(CommandHandler("language", language_handler))
     app.add_handler(CommandHandler("privacy", privacy_handler))
@@ -155,7 +164,7 @@ async def run_bot() -> None:
 
     admin_count = len(settings.admin_ids)
     logger.info(
-        "Bot startup: Default Region=%s, Admin Count=%d, Rate Limit=%d/min",
+        "Bot startup v1.2.0: Default Region=%s, Admin Count=%d, Rate Limit=%d/min",
         settings.default_region or "None",
         admin_count,
         settings.rate_limit_per_minute,

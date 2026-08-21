@@ -1,4 +1,4 @@
-"""Handlers for phone number lookups, batch processing, and interactive inline callbacks."""
+"""Handlers for phone number lookups, batch processing, QR codes, vCards, and interactive callbacks."""
 
 import io
 import json
@@ -21,6 +21,7 @@ from bot.services.formatter import (
 )
 from bot.services.phone_lookup import PhoneLookupService
 from bot.services.providers.base import NumberStatus, PhoneMetadata
+from bot.utils.qr_generator import generate_contact_qr, generate_vcard
 from bot.utils.rate_limit import RateLimiter
 
 logger = logging.getLogger(__name__)
@@ -29,8 +30,9 @@ logger = logging.getLogger(__name__)
 def build_report_keyboard(metadata: PhoneMetadata) -> InlineKeyboardMarkup:
     """Build interactive action buttons for single lookup reports."""
     buttons: List[List[InlineKeyboardButton]] = []
+    num_identifier = metadata.e164_format or metadata.input_number
 
-    # Row 1: Direct Action Links
+    # Row 1: Direct Action Links (WhatsApp / Telegram)
     action_row: List[InlineKeyboardButton] = []
     if metadata.wa_link and metadata.status in (NumberStatus.VALID, NumberStatus.POSSIBLE):
         action_row.append(InlineKeyboardButton("💬 WhatsApp", url=metadata.wa_link))
@@ -39,15 +41,24 @@ def build_report_keyboard(metadata: PhoneMetadata) -> InlineKeyboardMarkup:
     if action_row:
         buttons.append(action_row)
 
-    # Row 2: Export & Actions
+    # Row 2: QR Code & vCard Contact Export
+    if metadata.status in (NumberStatus.VALID, NumberStatus.POSSIBLE):
+        buttons.append(
+            [
+                InlineKeyboardButton("📲 QR Code", callback_data=f"get_qr:{num_identifier}"),
+                InlineKeyboardButton("📇 Save Contact (.vcf)", callback_data=f"get_vcf:{num_identifier}"),
+            ]
+        )
+
+    # Row 3: Export JSON & Check Another
     buttons.append(
         [
-            InlineKeyboardButton("📄 Export JSON", callback_data=f"export_json:{metadata.e164_format or metadata.input_number}"),
+            InlineKeyboardButton("📄 Export JSON", callback_data=f"export_json:{num_identifier}"),
             InlineKeyboardButton("🔄 Check Another", callback_data="check_another"),
         ]
     )
 
-    # Row 3: Help
+    # Row 4: Help & Language
     buttons.append(
         [
             InlineKeyboardButton("ℹ️ Help", callback_data="show_help"),
@@ -81,9 +92,7 @@ async def text_lookup_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
             )
             return
 
-    # Check if this is a multi-number batch query (newlines or commas)
     potential_numbers = [n.strip() for n in re.split(r"[\n,]+", raw_text) if n.strip()]
-
     service: PhoneLookupService = context.bot_data.get("lookup_service")
     if not service:
         service = PhoneLookupService()
@@ -192,6 +201,8 @@ async def callback_router_handler(update: Update, context: ContextTypes.DEFAULT_
     data = query.data or ""
     user_id = update.effective_user.id
     db: DatabaseManager = context.bot_data.get("db")
+    service: PhoneLookupService = context.bot_data.get("lookup_service") or PhoneLookupService()
+    settings = get_settings()
 
     if data in ("check_number", "check_another"):
         await query.message.reply_text(
@@ -239,11 +250,6 @@ async def callback_router_handler(update: Update, context: ContextTypes.DEFAULT_
         await query.message.reply_text("✅ भाषा <b>हिन्दी</b> पर सेट हो गई है! विश्लेषण शुरू करने के लिए कोई भी फोन नंबर भेजें।", parse_mode=ParseMode.HTML)
     elif data.startswith("export_json:"):
         number_param = data.split(":", 1)[1]
-        service: PhoneLookupService = context.bot_data.get("lookup_service")
-        if not service:
-            service = PhoneLookupService()
-        settings = get_settings()
-
         meta = await service.lookup(number_param, default_region=settings.default_region)
         json_data = json.dumps(meta.model_dump(), indent=2, ensure_ascii=False)
 
@@ -253,5 +259,22 @@ async def callback_router_handler(update: Update, context: ContextTypes.DEFAULT_
         await query.message.reply_document(
             document=bio,
             caption="📄 <b>Structured Phone Intelligence Metadata (JSON)</b>",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data.startswith("get_qr:"):
+        number_param = data.split(":", 1)[1]
+        qr_bio = generate_contact_qr(number_param)
+        await query.message.reply_photo(
+            photo=qr_bio,
+            caption=f"📲 <b>Contact QR Code for</b> <code>{number_param}</code>\n<i>Scan with any camera to dial or save.</i>",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data.startswith("get_vcf:"):
+        number_param = data.split(":", 1)[1]
+        meta = await service.lookup(number_param, default_region=settings.default_region)
+        vcf_bio = generate_vcard(meta)
+        await query.message.reply_document(
+            document=vcf_bio,
+            caption=f"📇 <b>vCard Contact Card for</b> <code>{meta.international_format or number_param}</code>\n<i>Tap to import into Contacts.</i>",
             parse_mode=ParseMode.HTML,
         )
