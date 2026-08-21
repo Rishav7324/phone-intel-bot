@@ -63,12 +63,12 @@ async def validate_email(email_address: str) -> Dict[str, Any]:
     mx_records = await loop.run_in_executor(None, _get_mx)
     has_mx = len(mx_records) > 0
 
-    if not has_mx:
-        status = "🔴 Undeliverable (No MX Records)"
-        reason = f"The domain '{domain_part}' has no mail exchanger (MX) records configured."
-    elif is_disposable:
+    if is_disposable:
         status = "🟡 High Risk (Disposable / Burner Email)"
         reason = "This address belongs to a temporary or burner disposable email provider."
+    elif not has_mx:
+        status = "🔴 Undeliverable (No MX Records)"
+        reason = f"The domain '{domain_part}' has no mail exchanger (MX) records configured."
     elif is_free:
         status = "🟢 Valid (Free Consumer Mailbox)"
         reason = "Valid mailbox on a recognized public email provider (e.g. Google, Microsoft, Apple)."

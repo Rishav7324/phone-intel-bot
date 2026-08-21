@@ -79,27 +79,44 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 
 async def post_init(application: Application) -> None:
-    """Set up bot command menu on startup."""
+    """Set up complete bot command menu on startup."""
     commands = [
         BotCommand("menu", "🎛️ Master Toolkit Dashboard"),
-        BotCommand("start", "Start the bot & quick overview"),
+        BotCommand("start", "🚀 Welcome & Quick Overview"),
+        BotCommand("help", "📖 Complete Commands Guide"),
         BotCommand("ip", "🌐 IP Geolocation & ASN Lookup"),
-        BotCommand("dns", "🔗 DNS Records Explorer"),
-        BotCommand("email", "📧 Email & Disposable Validator"),
-        BotCommand("unshorten", "🛡️ URL Expander & Anti-Phishing"),
-        BotCommand("qr", "📲 Generate Custom QR Code"),
-        BotCommand("qrwifi", "📶 Generate Wi-Fi Connect QR"),
-        BotCommand("crypto", "🪙 Live Crypto Prices (USD/INR)"),
-        BotCommand("forex", "💱 Real-Time Currency Converter"),
-        BotCommand("password", "🔑 High-Entropy Password Generator"),
-        BotCommand("hash", "🔐 MD5/SHA-256 Hash Digest"),
+        BotCommand("ping", "⏱️ Measure Latency & DNS Speed"),
+        BotCommand("headers", "📡 Inspect HTTP Response Headers"),
+        BotCommand("port", "🚪 Check If TCP Port Is Open"),
+        BotCommand("dns", "🔗 Query DNS Records (A, MX, etc.)"),
+        BotCommand("unshorten", "🛡️ Expand Links & Trace Redirects"),
+        BotCommand("subdomains", "🌐 Discover Subdomains via CT Logs"),
+        BotCommand("secscan", "🛡️ HTTP Security Headers Audit"),
+        BotCommand("email", "📧 Verify Email & Disposable Check"),
+        BotCommand("qr", "📲 Generate Custom QR Code Image"),
+        BotCommand("qrwifi", "📶 Generate Wi-Fi Auto-Connect QR"),
+        BotCommand("crypto", "🪙 Live Crypto Prices (USD & INR)"),
+        BotCommand("forex", "💱 Real-Time Currency Exchange"),
+        BotCommand("password", "🔑 High-Entropy Random Password"),
+        BotCommand("hash", "🔐 MD5 / SHA-256 / SHA-512 Digests"),
+        BotCommand("base64", "🔤 Base64 Encoder / Decoder"),
+        BotCommand("uuid", "🆔 Generate Unique Identifiers"),
+        BotCommand("jwt", "🪙 Decode JSON Web Token"),
+        BotCommand("epoch", "🕒 Unix Epoch Timestamp Converter"),
+        BotCommand("color", "🎨 HEX to RGB & Color Swatch Photo"),
         BotCommand("country", "🌍 Country Dialling Code Search"),
-        BotCommand("compare", "⚖️ Compare Two Phone Numbers"),
-        BotCommand("help", "📖 Full Commands Guide"),
+        BotCommand("dialcodes", "🌐 Browse Global Dialling Directory"),
+        BotCommand("sample", "🧪 Generate Test Phone Numbers"),
+        BotCommand("compare", "⚖️ Side-by-Side Number Comparison"),
+        BotCommand("batch", "📊 Multi-Number Batch Lookup Guide"),
+        BotCommand("language", "🌐 Switch English / हिन्दी Language"),
+        BotCommand("privacy", "🔒 Zero-Log Privacy Principles"),
+        BotCommand("about", "ℹ️ Bot Architecture & Tech Stack"),
     ]
     await application.bot.set_my_commands(commands)
     logger = logging.getLogger("phone_intel_bot")
-    logger.info("Multi-Tool bot command menu configured successfully with v2.0 commands")
+    logger.info("Multi-Tool bot command menu configured successfully with all %d commands", len(commands))
+
 
 
 def build_application() -> Application:

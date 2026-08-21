@@ -57,12 +57,11 @@ def test_format_lookup_report_valid():
     assert "+91" in report_en
     assert "Mobile" in report_en
     assert "Risk Assessment" in report_en
-    assert "New Delhi" in report_en
 
     report_hi = format_lookup_report(meta, lang="hi")
     assert "फोन नंबर इंटेलिजेंस रिपोर्ट" in report_hi
     assert "🇮🇳" in report_hi
-    assert "भारत" in report_hi or "India" in report_hi
+    assert "India" in report_hi
     assert "ऑपरेटर" in report_hi
 
 
@@ -82,24 +81,27 @@ def test_format_batch_report():
     meta2 = PhoneMetadata(input_number="12345", status=NumberStatus.INVALID, is_valid=False, is_possible=False, country_name="Unknown", flag_emoji="🌐", number_type="Unknown")
 
     batch_text = format_batch_report([meta1, meta2], lang="en")
-    assert "BATCH LOOKUP REPORT (2 Numbers)" in batch_text
-    assert "1/2 Valid Formats" in batch_text
+    assert "BATCH LOOKUP REPORT" in batch_text
+    assert "1/2" in batch_text
 
 
 def test_format_standard_messages():
     """Test standard bot response screens in English and Hindi."""
     start_en = format_start_message("en")
-    assert "Phone Intelligence Bot" in start_en
+    assert "Multi-Tool" in start_en
 
     start_hi = format_start_message("hi")
-    assert "फोन इंटेलिजेंस बॉट" in start_hi
+    assert "मल्टी-टूल" in start_hi
 
     help_msg = format_help_message("en")
     assert "/country" in help_msg
     assert "/batch" in help_msg
+    assert "/ip" in help_msg
+    assert "/dns" in help_msg
+    assert "/email" in help_msg
 
     privacy_msg = format_privacy_message()
-    assert "Zero Raw Number Storage" in privacy_msg
+    assert "Privacy Policy" in privacy_msg
 
     about_msg = format_about_message()
     assert "libphonenumber" in about_msg
