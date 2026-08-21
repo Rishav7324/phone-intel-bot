@@ -1,44 +1,74 @@
-# 📱 Telegram Phone Number Intelligence Bot
+# 🎛️ All-in-One Telegram Multi-Tool & Intelligence Suite (v2.0)
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Framework: python-telegram-bot](https://img.shields.io/badge/telegram-v21%2B-blue)](https://python-telegram-bot.org/)
 [![Validation: libphonenumber](https://img.shields.io/badge/validation-Google_libphonenumber-green)](https://github.com/google/libphonenumber)
 
-A fast, secure, and production-ready Telegram bot that accepts international telephone numbers and returns legitimate, publicly available phone number metadata.
-
-Built with **Python 3.12+**, **`python-telegram-bot` (v21+ Async)**, **Google's `libphonenumber` (`phonenumbers`)**, **Pydantic v2**, **`aiosqlite`**, and **in-memory TTL caching**.
+A fast, secure, and production-ready all-in-one Telegram Bot providing **Phone Intelligence**, **IP & Network Tools**, **DNS & Web OSINT**, **Email Deliverability & Burner Checks**, **QR Code Studio**, **Cryptographic & Developer Utilities**, and **Live Crypto/Forex Trackers**.
 
 ---
 
 ## 📑 Table of Contents
 
-1. [Features](#1-features)
+1. [Multi-Tool Suite Catalog](#1-multi-tool-suite-catalog)
 2. [Architecture & Design](#2-architecture--design)
 3. [Installation & Requirements](#3-installation--requirements)
 4. [Telegram BotFather Setup](#4-telegram-botfather-setup)
 5. [Environment Configuration](#5-environment-configuration)
-6. [Local Development](#6-local-development)
-7. [Production Deployment (Systemd / Background)](#7-production-deployment-no-docker)
-8. [Bot Commands & Interaction Flow](#8-bot-commands--interaction-flow)
-9. [Privacy Principles & Ethical Limitations](#9-privacy-principles--ethical-limitations)
-10. [Troubleshooting](#10-troubleshooting)
-11. [Testing & Quality Assurance](#11-testing--quality-assurance)
+6. [Local & Background Deployment](#6-local--background-deployment)
+7. [Commands & Interaction Flow](#7-commands--interaction-flow)
+8. [Privacy Principles & Security](#8-privacy-principles--security)
+9. [Testing & Quality Assurance](#9-testing--quality-assurance)
 
 ---
 
-## 1. Features
+## 1. Multi-Tool Suite Catalog
 
-- 🌍 **International Parsing & Validation**: Accurate validation using Google's libphonenumber standard.
-- 📱 **Number Type Classification**: Identifies Mobile, Landline (Fixed Line), VoIP, Toll Free, Premium Rate, Pager, UAN, and Voicemail.
-- 🏢 **Carrier & Telecom Metadata**: Retrieves original network operator allocation where publicly available.
-- 📍 **Geographical Region & Timezones**: Displays country, geographic region/state, and applicable timezones.
-- 🌐 **Format Standardization**: Formats numbers into standardized **E.164**, **International**, and **National** conventions.
-- ⚡ **Instant Response & UI**: Instantaneous search feedback (`🔎 Checking...`) followed by a clean HTML report with inline buttons.
-- 🔒 **Privacy-by-Design**: Strictly zero storage of raw phone numbers. Automatic masking in server logs (`+91******3210`).
-- 🛡️ **Per-User Rate Limiting**: In-memory sliding window rate limiting to prevent spam and denial of service.
-- 🚀 **High Performance Caching**: In-memory TTL caching for identical queries.
-- 📊 **Administrator Analytics**: Aggregated `/stats` command for authorized admins showing total lookups, unique users, and top queried countries (without revealing user phone numbers).
+### 📱 Suite 1: Phone & Telecom Intelligence
+- **ITU Parsing & Formatting**: Real-time validation via Google's `libphonenumber`.
+- **Classification & Carrier**: Identifies Mobile, Landline, VoIP, Toll-Free, and network allocations.
+- **Telecom Risk Assessment**: Heuristic risk badges (`🟢 Low`, `🟡 Medium (VoIP)`, `🔴 High (Premium Rate)`).
+- **Direct Chat Links**: Instant one-tap WhatsApp (`wa.me`) and Telegram (`t.me`) chat actions.
+- **Contact QR & vCard**: Generates scannable QR PNG images and `.vcf` contact cards.
+- **Batch Analysis (`/batch`)**: Process up to 10 numbers at once with unified summary reports.
+- **Dial Code Directory (`/country`, `/dialcodes`)**: World calling codes, emoji flags, currencies, and capitals.
+- **Sample Number Generator (`/sample`)**: Valid test numbers for Mobile, Landline, and Toll-Free.
+- **Number Comparator (`/compare`)**: Side-by-side comparison of two telephone numbers.
+
+### 🌐 Suite 2: IP & Network Intelligence
+- **IP Geolocation (`/ip <address>`)**: Country, City, Region, Zip, ISP, ASN, and Reverse DNS.
+- **VPN / Proxy / Cloud Flagging**: Identifies if an IP belongs to a proxy, Tor exit, or datacenter.
+- **Latency & Ping Tester (`/ping <host>`)**: Measures DNS resolution and TCP handshake latency in ms.
+- **HTTP Headers Analyzer (`/headers <url>`)**: Inspects server type, HSTS, CSP, and response headers.
+- **Port Scanner (`/port <host> <port>`)**: Tests if specific TCP ports are open/filtered.
+
+### 🔗 Suite 3: Domain, DNS & Web OSINT
+- **DNS Records Explorer (`/dns <domain>`)**: Resolves A, AAAA, MX, TXT, NS, CNAME, SOA records.
+- **URL Unshortener (`/unshorten <url>`)**: Traces HTTP redirect chains (bit.ly, t.co, tinyurl) for anti-phishing safety.
+- **Subdomain Discovery (`/subdomains <domain>`)**: Queries Certificate Transparency (crt.sh) logs.
+- **Security Headers Grader (`/secscan <domain>`)**: Audits CSP, HSTS, X-Frame-Options and scores website security (A+ to F).
+
+### 📧 Suite 4: Email & Burner Mail Detector
+- **Email Validator (`/email <address>`)**: RFC 5322 syntax validation and live MX exchange check.
+- **Disposable Mail Filter**: Detects 100+ temporary burner email providers (TempMail, 10MinuteMail, Mailinator).
+
+### 📲 Suite 5: QR Code Studio
+- **Custom QR Generator (`/qr <text/url>`)**: Generates high-resolution QR codes for links, text, or crypto wallets.
+- **Wi-Fi Join QR Generator (`/qrwifi <SSID> <Pass> [WPA]`)**: Generates scannable Wi-Fi login codes.
+
+### 🔐 Suite 6: Hashes, Crypto & Dev Utilities
+- **Cryptographic Hashes (`/hash <text>`)**: Computes MD5, SHA-1, SHA-256, and SHA-512 in one view.
+- **Base64 Studio (`/base64 enc|dec <text>`)**: Encodes and decodes base64 strings.
+- **Password Generator (`/password [length]`)**: High-entropy cryptographically secure random passwords.
+- **UUID Generator (`/uuid`)**: Generates UUID v4 (random) and UUID v1 (timestamp).
+- **JWT Token Decoder (`/jwt <token>`)**: Parses JWT header, payload, expiration (`exp`), and issued-at (`iat`).
+- **Epoch Timestamp Converter (`/epoch [timestamp]`)**: Converts Unix seconds ↔ UTC and Indian Standard Time (IST).
+- **Color Previewer (`/color <HEX>`)**: Converts HEX to RGB and renders a visual color swatch preview!
+
+### 📈 Suite 7: Crypto & Forex Trackers
+- **Live Crypto Rates (`/crypto [coins]`)**: Bitcoin, Ethereum, Solana, TON, Dogecoin prices in USD & INR via CoinGecko.
+- **Forex Calculator (`/forex <amount> <FROM> <TO>`)**: Real-time currency exchange rates.
 
 ---
 

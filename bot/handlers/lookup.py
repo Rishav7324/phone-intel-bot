@@ -278,3 +278,81 @@ async def callback_router_handler(update: Update, context: ContextTypes.DEFAULT_
             caption=f"📇 <b>vCard Contact Card for</b> <code>{meta.international_format or number_param}</code>\n<i>Tap to import into Contacts.</i>",
             parse_mode=ParseMode.HTML,
         )
+    elif data == "menu_phone":
+        await query.message.reply_text(
+            "📱 <b>Phone Intelligence Commands</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• Send any phone number directly (e.g. <code>+91 98765 43210</code>)\n"
+            "• <code>/country &lt;name&gt;</code> — Lookup country dialling codes & info\n"
+            "• <code>/dialcodes</code> — Browse world dialling directory\n"
+            "• <code>/sample &lt;country&gt;</code> — Generate test phone numbers\n"
+            "• <code>/compare &lt;n1&gt; &lt;n2&gt;</code> — Side-by-side number comparison\n"
+            "• <code>/batch</code> — Multi-number batch lookup guide",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_ip":
+        await query.message.reply_text(
+            "🌐 <b>IP & Network Commands</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/ip &lt;IP/domain&gt;</code> — Geolocation, ISP, ASN, and VPN check\n"
+            "• <code>/ping &lt;host&gt;</code> — Measure TCP latency & DNS speed\n"
+            "• <code>/headers &lt;url&gt;</code> — View HTTP response headers & server\n"
+            "• <code>/port &lt;host&gt; &lt;port&gt;</code> — Test if a TCP port is open",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_domain":
+        await query.message.reply_text(
+            "🔗 <b>Domain & Web OSINT Commands</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/dns &lt;domain&gt;</code> — Query A, AAAA, MX, TXT, NS records\n"
+            "• <code>/unshorten &lt;url&gt;</code> — Trace redirect chains & expand short links\n"
+            "• <code>/subdomains &lt;domain&gt;</code> — Discover subdomains via CT logs\n"
+            "• <code>/secscan &lt;domain&gt;</code> — Grade HTTP security headers",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_email":
+        await query.message.reply_text(
+            "📧 <b>Email Verification Commands</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/email &lt;address&gt;</code> — Validate syntax, MX mail exchange servers, and disposable/temp-mail status.",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_qr":
+        await query.message.reply_text(
+            "📲 <b>QR Code Studio Commands</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/qr &lt;text or url&gt;</code> — Generate custom QR code image\n"
+            "• <code>/qrwifi &lt;SSID&gt; &lt;Pass&gt; [WPA]</code> — Generate Wi-Fi join QR code",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_crypto":
+        await query.message.reply_text(
+            "🔐 <b>Cryptographic & Security Tools</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/hash &lt;text&gt;</code> — Compute MD5, SHA-1, SHA-256, SHA-512\n"
+            "• <code>/base64 enc &lt;text&gt;</code> — Base64 Encoder\n"
+            "• <code>/base64 dec &lt;b64&gt;</code> — Base64 Decoder\n"
+            "• <code>/password [len]</code> — Generate high-entropy secure password\n"
+            "• <code>/uuid</code> — Generate UUID v4 / v1",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_market":
+        await query.message.reply_text(
+            "🪙 <b>Crypto & Forex Trackers</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/crypto [btc,eth,sol]</code> — Live crypto prices in USD & INR\n"
+            "• <code>/forex &lt;amt&gt; &lt;from&gt; &lt;to&gt;</code> — Real-time currency exchange calculator",
+            parse_mode=ParseMode.HTML,
+        )
+    elif data == "menu_dev":
+        await query.message.reply_text(
+            "🛠️ <b>Developer Utilities</b>\n"
+            "━━━━━━━━━━━━━━━━━━\n\n"
+            "• <code>/jwt &lt;token&gt;</code> — Decode JSON Web Token payload & header\n"
+            "• <code>/epoch [ts]</code> — Convert Unix timestamp ↔ UTC / IST\n"
+            "• <code>/color &lt;hex&gt;</code> — Convert HEX to RGB & generate color swatch\n"
+            "• <code>/compare &lt;n1&gt; &lt;n2&gt;</code> — Side-by-side number comparison\n"
+            "• <code>/sample &lt;country&gt;</code> — Generate valid test numbers",
+            parse_mode=ParseMode.HTML,
+        )
+
