@@ -1,10 +1,12 @@
 """Local metadata provider leveraging Google's libphonenumber via phonenumbers."""
 
 import logging
+import re
 from typing import Dict, List, Optional
 import phonenumbers
 from phonenumbers import carrier, geocoder, timezone, PhoneNumberType, NumberParseException
 
+from bot.utils.country_data import COUNTRY_DIRECTORY, get_flag_emoji
 from .base import NumberStatus, PhoneLookupProvider, PhoneMetadata
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,21 @@ NUMBER_TYPE_MAPPING: Dict[int, str] = {
 }
 
 
+def assess_risk(number_type: int) -> tuple[str, str]:
+    """Calculate telecom risk level based on allocation type."""
+    if number_type == PhoneNumberType.PREMIUM_RATE:
+        return "🔴 High", "Premium rate billing range (Potential toll/spam risk)"
+    elif number_type == PhoneNumberType.VOIP:
+        return "🟡 Medium", "VoIP / Virtual number (Often used for temporary OTP/burners)"
+    elif number_type == PhoneNumberType.SHARED_COST:
+        return "🟡 Medium", "Shared cost telephone service"
+    elif number_type == PhoneNumberType.TOLL_FREE:
+        return "🟢 Low", "Toll-free business range"
+    elif number_type in (PhoneNumberType.MOBILE, PhoneNumberType.FIXED_LINE, PhoneNumberType.FIXED_LINE_OR_MOBILE):
+        return "🟢 Low", "Standard telecom subscriber range"
+    return "⚪ Neutral", "Unclassified number range"
+
+
 class PhonenumbersProvider(PhoneLookupProvider):
     """Offline phone metadata provider using the standard phonenumbers library."""
 
@@ -40,7 +57,6 @@ class PhonenumbersProvider(PhoneLookupProvider):
 
         # Attempt to parse phone number
         try:
-            # If no '+' and default_region provided, use default region
             if not cleaned_input.startswith("+") and default_region:
                 parsed_num = phonenumbers.parse(cleaned_input, default_region.upper())
                 used_default = True
@@ -89,6 +105,12 @@ class PhonenumbersProvider(PhoneLookupProvider):
         calling_code_str = f"+{country_calling_code}" if country_calling_code else None
         region_iso = phonenumbers.region_code_for_number(parsed_num)
 
+        # Flag and Country Details
+        flag = get_flag_emoji(region_iso)
+        country_profile = COUNTRY_DIRECTORY.get(region_iso) if region_iso else None
+        capital = country_profile.capital if country_profile else None
+        currency = country_profile.currency if country_profile else None
+
         # Country / Location description
         country_name = geocoder.country_name_for_number(parsed_num, "en") or "Not available"
         region_desc = geocoder.description_for_number(parsed_num, "en") or "Not available"
@@ -97,31 +119,53 @@ class PhonenumbersProvider(PhoneLookupProvider):
         carrier_name = carrier.name_for_number(parsed_num, "en")
         carrier_str = carrier_name if carrier_name else "Not available"
 
-        # Number type
+        # Number type & risk
         num_type_enum = phonenumbers.number_type(parsed_num)
         num_type_str = NUMBER_TYPE_MAPPING.get(num_type_enum, "Unknown")
+        risk_level, risk_desc = assess_risk(num_type_enum)
+
+        # Emergency check
+        is_emergency = False
+        try:
+            if region_iso:
+                is_emergency = phonenumbers.is_emergency_number(cleaned_input, region_iso)
+        except Exception:
+            pass
 
         # Timezones
         tz_tuple = timezone.time_zones_for_number(parsed_num)
         timezones_list: List[str] = list(tz_tuple) if tz_tuple else ["Not available"]
+
+        # Direct Chat links (only for valid/possible numbers)
+        digits_only = re.sub(r"\D", "", e164_str) if e164_str else ""
+        wa_link = f"https://wa.me/{digits_only}" if digits_only else None
+        tg_link = f"https://t.me/+{digits_only}" if digits_only else None
 
         return PhoneMetadata(
             input_number=cleaned_input,
             status=status,
             is_valid=is_valid,
             is_possible=is_possible,
+            is_emergency=is_emergency,
             country_code=country_calling_code,
             country_calling_code_str=calling_code_str,
             region_code=region_iso,
             country_name=country_name if country_name != "Not available" else region_desc,
+            flag_emoji=flag,
             number_type=num_type_str,
             carrier=carrier_str,
             region_description=region_desc,
             timezones=timezones_list,
+            risk_level=risk_level,
+            risk_description=risk_desc,
             e164_format=e164_str,
             international_format=intl_str,
             national_format=natl_str,
             rfc3966_format=rfc3966_str,
+            capital=capital,
+            currency=currency,
+            wa_link=wa_link,
+            tg_link=tg_link,
             used_default_region=used_default,
         )
 

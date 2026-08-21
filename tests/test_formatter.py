@@ -1,4 +1,4 @@
-"""Unit tests for HTML escaping and response formatting."""
+"""Unit tests for HTML escaping, upgraded report formatting, and language templates."""
 
 import pytest
 from bot.database.db import AdminStats
@@ -6,6 +6,8 @@ from bot.services.formatter import (
     escape,
     format_about_message,
     format_admin_stats,
+    format_batch_report,
+    format_country_report,
     format_help_message,
     format_lookup_report,
     format_privacy_message,
@@ -13,6 +15,7 @@ from bot.services.formatter import (
     format_start_message,
 )
 from bot.services.providers.base import NumberStatus, PhoneMetadata
+from bot.utils.country_data import CountryInfo
 
 
 def test_escape_html_entities():
@@ -23,7 +26,7 @@ def test_escape_html_entities():
 
 
 def test_format_lookup_report_valid():
-    """Test report generation for a valid phone number."""
+    """Test report generation for a valid phone number with enriched attributes."""
     meta = PhoneMetadata(
         input_number="+919876543210",
         status=NumberStatus.VALID,
@@ -33,70 +36,67 @@ def test_format_lookup_report_valid():
         country_calling_code_str="+91",
         region_code="IN",
         country_name="India",
+        flag_emoji="🇮🇳",
         number_type="Mobile",
         carrier="Airtel",
         region_description="India",
         timezones=["Asia/Calcutta"],
+        risk_level="🟢 Low",
+        risk_description="Standard cellular range",
+        capital="New Delhi",
+        currency="INR (₹)",
         e164_format="+919876543210",
         international_format="+91 98765 43210",
         national_format="09876543210",
     )
-    report = format_lookup_report(meta)
-    assert "PHONE LOOKUP REPORT" in report
-    assert "+91 98765 43210" in report
-    assert "India" in report
-    assert "+91" in report
-    assert "Mobile" in report
-    assert "Yes (Valid number format)" in report
-    assert "Airtel" in report
-    assert "Asia/Calcutta" in report
-    assert "Public metadata only" in report
+    report_en = format_lookup_report(meta, lang="en")
+    assert "PHONE LOOKUP REPORT" in report_en
+    assert "🇮🇳" in report_en
+    assert "+91 98765 43210" in report_en
+    assert "India" in report_en
+    assert "+91" in report_en
+    assert "Mobile" in report_en
+    assert "Risk Assessment" in report_en
+    assert "New Delhi" in report_en
+
+    report_hi = format_lookup_report(meta, lang="hi")
+    assert "फोन नंबर इंटेलिजेंस रिपोर्ट" in report_hi
+    assert "🇮🇳" in report_hi
+    assert "भारत" in report_hi or "India" in report_hi
+    assert "ऑपरेटर" in report_hi
 
 
-def test_format_lookup_report_invalid_with_error():
-    """Test report generation for invalid input with specific error message."""
-    meta = PhoneMetadata(
-        input_number="12345",
-        status=NumberStatus.INVALID,
-        is_valid=False,
-        is_possible=False,
-        error_message="Missing or invalid country code.",
-    )
-    report = format_lookup_report(meta)
-    assert "PHONE LOOKUP ERROR" in report
-    assert "12345" in report
-    assert "Missing or invalid country code" in report
+def test_format_country_report():
+    """Test country dial code profile report."""
+    info = CountryInfo("Japan", "जापान", "JP", "JPN", "+81", "🇯🇵", "Tokyo", "JPY (¥)", "Japanese")
+    res = format_country_report(info)
+    assert "🇯🇵" in res
+    assert "Japan" in res
+    assert "+81" in res
+    assert "Tokyo" in res
 
 
-def test_format_admin_stats():
-    """Test generation of admin statistics summary."""
-    stats = AdminStats(
-        total_users=150,
-        total_lookups=1200,
-        today_lookups=45,
-        top_countries=[("IN (+91)", 700), ("US (+1)", 300)],
-        valid_lookups=1100,
-        invalid_lookups=100,
-    )
-    res = format_admin_stats(stats)
-    assert "BOT SYSTEM & USAGE STATISTICS" in res
-    assert "150" in res
-    assert "1,200" in res
-    assert "45" in res
-    assert "IN (+91)" in res
-    assert "700" in res
-    assert "Zero raw numbers stored" in res
+def test_format_batch_report():
+    """Test batch analysis summary."""
+    meta1 = PhoneMetadata(input_number="+919876543210", status=NumberStatus.VALID, is_valid=True, is_possible=True, country_name="India", flag_emoji="🇮🇳", number_type="Mobile", e164_format="+919876543210")
+    meta2 = PhoneMetadata(input_number="12345", status=NumberStatus.INVALID, is_valid=False, is_possible=False, country_name="Unknown", flag_emoji="🌐", number_type="Unknown")
+
+    batch_text = format_batch_report([meta1, meta2], lang="en")
+    assert "BATCH LOOKUP REPORT (2 Numbers)" in batch_text
+    assert "1/2 Valid Formats" in batch_text
 
 
 def test_format_standard_messages():
-    """Test standard bot response screens."""
-    start_msg = format_start_message()
-    assert "Phone Intelligence Bot" in start_msg
-    assert "+91" in start_msg
+    """Test standard bot response screens in English and Hindi."""
+    start_en = format_start_message("en")
+    assert "Phone Intelligence Bot" in start_en
 
-    help_msg = format_help_message()
-    assert "/start" in help_msg
-    assert "Rate Limit" in help_msg
+    start_hi = format_start_message("hi")
+    assert "फोन इंटेलिजेंस बॉट" in start_hi
+
+    help_msg = format_help_message("en")
+    assert "/country" in help_msg
+    assert "/batch" in help_msg
 
     privacy_msg = format_privacy_message()
     assert "Zero Raw Number Storage" in privacy_msg

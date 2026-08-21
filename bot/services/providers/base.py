@@ -20,24 +20,36 @@ class PhoneMetadata(BaseModel):
     status: NumberStatus
     is_valid: bool = False
     is_possible: bool = False
+    is_emergency: bool = False
 
     # Calling Code and ISO Region
     country_code: Optional[int] = None
     country_calling_code_str: Optional[str] = None
     region_code: Optional[str] = None
     country_name: str = "Not available"
+    flag_emoji: str = "🌐"
 
-    # Type & Carrier
+    # Type, Carrier & Risk
     number_type: str = "Unknown"
     carrier: str = "Not available"
     region_description: str = "Not available"
     timezones: List[str] = Field(default_factory=lambda: ["Not available"])
+    risk_level: str = "🟢 Low"
+    risk_description: str = "Standard cellular / landline range"
 
     # Formats
     e164_format: Optional[str] = None
     international_format: Optional[str] = None
     national_format: Optional[str] = None
     rfc3966_format: Optional[str] = None
+
+    # Country Extras
+    capital: Optional[str] = None
+    currency: Optional[str] = None
+
+    # Direct Messaging Links
+    wa_link: Optional[str] = None
+    tg_link: Optional[str] = None
 
     # Flags & Diagnostics
     used_default_region: bool = False
@@ -53,13 +65,5 @@ class PhoneLookupProvider(ABC):
         phone_number: str,
         default_region: Optional[str] = None
     ) -> PhoneMetadata:
-        """Parse, validate, and retrieve metadata for a given phone number.
-
-        Args:
-            phone_number: Raw sanitized phone number string.
-            default_region: Optional fallback ISO 3166-1 alpha-2 region code (e.g., 'IN', 'US').
-
-        Returns:
-            Structured PhoneMetadata instance.
-        """
+        """Parse, validate, and retrieve metadata for a given phone number."""
         raise NotImplementedError
