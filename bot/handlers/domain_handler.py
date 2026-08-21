@@ -103,7 +103,7 @@ async def subdomains_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     domain = context.args[0].strip()
-    status_msg = await update.effective_message.reply_text(f"🔎 <i>Querying Certificate Transparency logs for {escape(domain)}...</i>", parse_mode=ParseMode.HTML)
+    status_msg = await update.effective_message.reply_text(f"🔎 <i>Discovering subdomains for {escape(domain)}...</i>", parse_mode=ParseMode.HTML)
 
     res = await find_subdomains(domain)
     if not res.get("success"):
@@ -113,13 +113,15 @@ async def subdomains_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     sub_list = res.get("subdomains", [])
     preview_subs = "\n".join(f"• <code>{escape(s)}</code>" for s in sub_list[:25])
 
+    source_text = res.get("source", "Multi-Source OSINT Engine")
+
     text = (
         f"🌐 <b>SUBDOMAINS FOR {escape(res.get('domain').upper())}</b>\n"
         "━━━━━━━━━━━━━━━━━━\n\n"
         f"<b>Discovered Subdomains ({res.get('count')}):</b>\n"
-        + (preview_subs if preview_subs else "<i>No active subdomains found in CT logs.</i>") +
-        "\n\n━━━━━━━━━━━━━━━━━━\n"
-        "ℹ️ <i>Source: Public Certificate Transparency (crt.sh)</i>"
+        + (preview_subs if preview_subs else "<i>No active subdomains found.</i>") +
+        f"\n\n━━━━━━━━━━━━━━━━━━\n"
+        f"ℹ️ <i>Source: {escape(source_text)}</i>"
     )
     await status_msg.edit_text(text, parse_mode=ParseMode.HTML)
 

@@ -113,3 +113,13 @@ async def test_port_check():
     """Verify port checking logic."""
     res = await check_port("1.1.1.1", 53)
     assert res["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_find_subdomains():
+    """Verify resilient subdomain discovery."""
+    from bot.tools.domain_tool import find_subdomains
+    res = await find_subdomains("telegram.org")
+    assert res["success"] is True
+    assert len(res["subdomains"]) > 0
+
